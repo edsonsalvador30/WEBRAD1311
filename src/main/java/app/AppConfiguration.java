@@ -13,7 +13,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 /**
- * Classe que configura os beans para persistencia
+ * Classe que configura os beans para persistencia teste
  * @generated
  */
 @Configuration
