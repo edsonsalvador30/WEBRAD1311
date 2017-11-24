@@ -1,6 +1,6 @@
 {
   "name": "cronapi-js",
-  "version": "0.0.46-staging",
+  "version": "0.0.70-staging",
   "homepage": "https://github.com/technecloud/cronapi-js",
   "authors": [
     "Cronapp <suporte@cronapp.io>"
@@ -15,13 +15,13 @@
     "test",
     "tests"
   ],
-  "_release": "0.0.46-staging",
+  "_release": "0.0.70-staging",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.46-staging",
-    "commit": "da1722f57381abe81971963d39594e743e401fe6"
+    "tag": "0.0.70-staging",
+    "commit": "90b756f706edd100066ec9a696428b5ab2641a24"
   },
   "_source": "https://github.com/technecloud/cronapi-js.git",
-  "_target": "0.0.46-staging",
+  "_target": "0.0.70-staging",
   "_originalSource": "cronapi-js"
 }
