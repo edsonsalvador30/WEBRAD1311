@@ -12,7 +12,7 @@ import cronapi.CronapiByteHeaderSignature;
 
 /**
  * Classe que representa a tabela ARQUIVOS
- * @generated tesfafsd
+ * @generated branch-two
  */
 @Entity
 @Table(name = "\"ARQUIVOS\"")
