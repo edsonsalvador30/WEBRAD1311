@@ -14,7 +14,7 @@
             <div class="">Nome _arq</div>
           </th>
           <th class="">
-            <div class="">Imagem</div>
+            <div class="">Imagem 2</div>
           </th>
           <th class="">
             <div class="">File</div>
@@ -34,7 +34,7 @@
           <td class="">
             <div class="">
               <a ng-if="rowData.imagem" ng-click="datasource.openImage(rowData.imagem)">
-              <img data-ng-src="{{rowData.imagem.startsWith('http') || (rowData.imagem.startsWith('/') && rowData.imagem.length < 1000)? rowData.imagem : 'data:image/png;base64,' + rowData.imagem}}" style="max-height: 30px;">
+              <img data-ng-src="{{rowData.imagem.startsWith('http') || (rowData.imagem.startsWith('/') &amp;&amp; rowData.imagem.length < 1000)? rowData.imagem : 'data:image/png;base64,' + rowData.imagem}}" style="max-height: 30px;">
               </a>
             </div>
           </td>
@@ -73,19 +73,13 @@
         <button class="btn btn-success" ng-click="datasource.post()"><i class="glyphicon glyphicon-ok"></i></button>
         <button class="btn btn-danger" ng-click="datasource.cancel()"><i class="glyphicon glyphicon-remove"></i></button>
       </div>
-      <br/>
+      <br>
       <fieldset ng-disabled="!datasource.editing &amp;&amp; !datasource.inserting">
         
         <div data-component="crn-textinput" id="crn-textinput-nome_arq">
           <div class="form-group">
             <label for="textinput-nome_arq" class="">Nome _arq</label>
-            <input
-              type="text"
-              ng-model="Arquivos.active.nome_arq"
-              class="form-control"
-              id="textinput-nome_arq"
-              placeholder="Nome _arq"
-              >
+            <input type="text" ng-model="Arquivos.active.nome_arq" class="form-control" id="textinput-nome_arq" placeholder="Nome _arq">
           </div>
         </div>
         
