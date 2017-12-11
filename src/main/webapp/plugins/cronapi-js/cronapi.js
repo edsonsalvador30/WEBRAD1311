@@ -264,7 +264,6 @@
    * @arbitraryParams true
    */
   this.cronapi.util.makeCallServerBlocklyAsync = function(blocklyWithFunction, callbackSuccess, callbackError) {
-    
     var fields = this.cronapi.util.getScreenFields();
 
     var paramsApply = [];
@@ -459,7 +458,78 @@
   this.cronapi.util.executeJavascriptReturn = function(value) {
     return eval( value );
   };
+  
+  /**
+   * @type function
+   * @name {{openReport}}
+   * @nameTags openReport|abrirrelatorio
+   * @description {{openReportDescription}}
+   * @param {ObjectType.STRING} value {{report}}
+   * @multilayer true
+   * @returns {ObjectType.VOID}
+   * @wizard procedures_openreport_callnoreturn
+   */  
+  this.cronapi.util.openReport = function(/** @type {ObjectType.STRING} @blockType util_report_list */ name) {
+    this.cronapi.$scope.getReport(name);
+  };
+  
+   /**
+   * @type function
+   * @name {{executeAsynchronousName}}
+   * @nameTags Executar|Assíncrono|Execute| Asynchronous
+   * @description {{executeAsynchronousDescription}}
+   * @param {ObjectType.STATEMENT} statement {{statement}}
+   *
+   */
+  this.cronapi.util.executeAsynchronous = function( /** @type {ObjectType.STATEMENT} @description {{statement}} */ statement) {
+    setTimeout(statement , 0 );
+  };
 
+  /**
+   * @type function
+   * @name {{scheduleExecutionName}}
+   * @nameTags Executar|Agenda|Agendar|Agendamento|Execução|Execute|Execution|Schedule|Scheduled
+   * @description {{scheduleExecutionDescription}}
+   * @param {ObjectType.STATEMENT} statement {{statement}}
+   * @param {ObjectType.LONG} initial_time {{scheduleExecutionParam1}}
+   * @param {ObjectType.LONG} interval_time {{scheduleExecutionParam2}}
+   * @param {ObjectType.STRING} measurement_unit {{scheduleExecutionParam3}}
+   */
+  this.cronapi.util.scheduleExecution = function( /** @type {ObjectType.STATEMENT} @description {{statement}} */ statements ,  /** @type {ObjectType.LONG} */  initial_time ,  /** @type {ObjectType.LONG} */  interval_time , /** @type {ObjectType.STRING} @description {{scheduleExecutionParam3}} @blockType util_dropdown @keys seconds|milliseconds|minutes|hours @values {{seconds}}|{{millisecondss}}|{{minutes}}|{{hours}}  */ measurement_unit ) {
+    var factor = 1;
+
+    if (measurement_unit == 'seconds') {
+      factor = 1000;
+    } else if(measurement_unit =='minutes') {
+      factor = 60000;
+    } else if(measurement_unit =='hours') {
+      factor = 3600000;
+    }
+
+    initial_time = initial_time * factor;
+    interval_time = interval_time * factor;
+
+    var intervalId = -1;
+
+    var timeoutId = setTimeout(function() {
+      statements();
+      intervalId = setInterval(statements , interval_time) ;
+    }.bind(this), initial_time);
+
+    this.$on('$destroy', function() {
+      try { clearTimeout(timeoutId); } catch(e) {}
+      try { clearInterval(intervalId); } catch(e) {}
+    });
+
+  };
+  
+  /**
+   * @type internal
+   */  
+  this.cronapi.util.openReport = function(name, params) {
+    this.cronapi.$scope.getReport(name, params);
+  };
+  
   /**
    * @category CategoryType.SCREEN
    * @categoryTags Screen|Tela
@@ -496,7 +566,7 @@
       this.safeApply(func.bind(this));
     }
     catch (e) {
-      alert(e);
+      // NO COMMAND
     }
   };
 
@@ -551,7 +621,6 @@
   /**
    * @type function
    * @name {{screenNotifyName}}
-   * @platform W
    * @description {{screenNotifyDescription}}
    * @param {ObjectType.STRING} type {{screenNotifyParam0}}
    * @param {ObjectType.STRING} message {{screenNotifyParam1}}
@@ -698,12 +767,14 @@
    */
   this.cronapi.screen.changeView = function(view, params) {
     try {
+      debugger;
       var queryString = '?';
       var template = '#key#=#value#&';
-      $(params).each(function(idx) {
-        for (var key in this)
-          queryString += template.replace('#key#', this.cronapi.internal.Url.encode(key)).replace('#value#', this.cronapi.internal.Url.encode(this[key]));
-      });
+      for (var i in Object.keys(params)) {
+          var k = Object.keys(params[i])[0];
+          var v = String(Object.values(params[i])[0]);
+           queryString += template.replace('#key#', this.cronapi.internal.Url.encode(k)).replace('#value#', this.cronapi.internal.Url.encode(v));
+      }
       window.location.hash = view + queryString;
     }
     catch (e) {
@@ -749,11 +820,24 @@
    */
   this.cronapi.screen.getParam = function(paramName) {
     try {
-      return this.cronapi.$scope.params[paramName];
+      
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+      
+      if (vars[paramName] !== undefined)
+        return decodeURIComponent(vars[paramName]);
     }
     catch (e) {
-      alert(e);
+      //
     }
+    
+    return null;
   };
 
 
@@ -1604,7 +1688,7 @@
     var streaming = null;
     var mediaConfig =  { video: true };
     var errBack = function(e) {
-    	console.log('An error has occurred!', e)
+      console.log('An error has occurred!', e)
     };
     
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -1656,9 +1740,9 @@
     canvas.height = height;
     var context = canvas.getContext('2d');
     var videoDOM = document.getElementById('cronapiVideoCapture');
-		context.drawImage(videoDOM, 0, 0, width, height);
-		var base64 = canvas.toDataURL().substr(22);
-		this.cronapi.screen.changeValueOfField(field, base64);
+    context.drawImage(videoDOM, 0, 0, width, height);
+    var base64 = canvas.toDataURL().substr(22);
+    this.cronapi.screen.changeValueOfField(field, base64);
   };
   
   this.cronapi.internal.castBase64ToByteArray = function(base64) {
@@ -1799,6 +1883,8 @@
   };
   
   this.cronapi.internal.uploadFile = function(field, file, progressId) {
+    if (!file)
+      return;
     var uploadUrl = '/api/cronapi/uploadFile';
     var formData = new FormData();
     formData.append("file", file);
@@ -1812,14 +1898,28 @@
           'X-AUTH-TOKEN': _u.token 
         },
         onProgress: function(event) {
-  				if (event.lengthComputable) {
+          if (event.lengthComputable) {
             var complete = (event.loaded / event.total * 100 | 0);
-            if (progressId) {
-              var progress = document.getElementById(progressId);
-              progress.value = progress.innerHTML = complete;
+            var $progressId = $('#'+progressId);
+            if ($progressId.length > 0) {
+              if ($progressId.data('type') == 'bootstrapProgress') {
+                if (complete < 100) {
+                  $progressId.show();
+                  $progressId.find('.progress-bar').css('width', complete+'%');
+                }
+                else {
+                  $progressId.hide();
+                  $progressId.find('.progress-bar').css('width', '0%');
+                }
+              }
+              else {
+                var progress = document.getElementById(progressId);
+                progress.value = progress.innerHTML = complete;
+              }
             }
+            
           }
-				}
+        }
     }).success(function(data, status, headers, config) {
         this.cronapi.screen.changeValueOfField(field, data.jsonString);
     }.bind(this)).error(function(data, status, headers, config) {
@@ -1960,26 +2060,26 @@
     */
    this.cronapi.cordova.camera.qrCodeScanner = function(/** @type {ObjectType.STRING} @description {{formatQRCode}} @blockType util_dropdown @keys QR_CODE|DATA_MATRIX|UPC_A|UPC_E|EAN_8|EAN_13|CODE_39|CODE_128 @values QR_CODE|DATA_MATRIX|UPC_A|UPC_E|EAN_8|EAN_13|CODE_39|CODE_128  */  format,/** @type {ObjectType.STRING} @description {{messageQRCode}} */ message, /** @type {ObjectType.STATEMENTSENDER} @description {{success}} */ success, /** @type {ObjectType.STATEMENTSENDER} @description {{error}} */  error ) {
     cordova.plugins.barcodeScanner.scan(
-	  function (result) {
-		  success(result.text);
-	  },
-	  function (errorMsg) {
-		  error(errorMsg);
-	  },
-	  {
-		  preferFrontCamera : false, 
-		  showFlipCameraButton : true, 
-		  showTorchButton : true, 
-		  torchOn: true, 
-		  saveHistory: true, 
-		  prompt : message, 
-		  resultDisplayDuration: 500, 
-		  formats : format, 
-		  orientation : "portrait", 
-		  disableAnimations : true, 
-		  disableSuccessBeep: false 
-	  }
-	);
+    function (result) {
+      success(result.text);
+    },
+    function (errorMsg) {
+      error(errorMsg);
+    },
+    {
+      preferFrontCamera : false, 
+      showFlipCameraButton : true, 
+      showTorchButton : true, 
+      torchOn: true, 
+      saveHistory: true, 
+      prompt : message, 
+      resultDisplayDuration: 500, 
+      formats : format, 
+      orientation : "portrait", 
+      disableAnimations : true, 
+      disableSuccessBeep: false 
+    }
+  );
    };
    
    
@@ -2342,13 +2442,13 @@
     // public method for url encoding
     encode : function (string) {
       if (string)
-        return escape(this._utf8_encode(string));
+        return escape(this.cronapi.internal.Url._utf8_encode(string));
       return '';
     },
     // public method for url decoding
     decode : function (string) {
       if (string)
-        return this._utf8_decode(unescape(string));
+        return this.cronapi.internal.Url._utf8_decode(unescape(string));
       return '';
     },
     // private method for UTF-8 encoding
@@ -2414,6 +2514,13 @@
     }
 
     return message;
+  };
+
+  /**
+   * @type internal
+   */
+  this.cronapi.util.upload = function(id, description, filter, maxSize, multiple) {
+    this.UploadService.upload({'description': description, 'id' : id, 'filter' : filter, 'maxSize': maxSize, 'multiple': multiple});
   };
 
 }).bind(window)();
