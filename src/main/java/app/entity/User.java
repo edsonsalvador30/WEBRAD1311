@@ -11,7 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 /**
- * Classe que representa a tabela USER altera��o para ser pega no
+ * Classe que representa a tabela USER - Alterado pelo GitHub
  * CronApp teste 93.
  * @generated
  */
