@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * Classe que representa a tabela USER - Alterado pelo GitHub
- * CronApp teste 93.
+ * CronApp teste 93. teste
  * @generated
  */
 @Entity

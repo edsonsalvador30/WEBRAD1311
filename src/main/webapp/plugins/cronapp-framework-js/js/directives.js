@@ -428,17 +428,39 @@
               filters = [];
 
             var index = -1;
-            var field = bindedFilter.split(operator)[0];
+            var ngModel = $element.attr('ng-model');
             $(filters).each(function(idx) {
-              if (this.startsWith(field)) {
+              if (this.ngModel == ngModel)
                 index = idx;
-              }
             });
 
             if (index > -1)
               filters.splice(index, 1);
-            filters.push(bindedFilter);
+            
+            if (bindedFilter.length > 0) {
+              var bindedFilterJson = {
+                "ngModel" : ngModel,
+                "bindedFilter" : bindedFilter
+              };
+              filters.push(bindedFilterJson);
+            }
             button.data('filters', filters);
+          },
+          makeAutoPostSearch: function($element, bindedFilter, datasource) {
+            var fieldset = $element.closest('fieldset');
+            if (fieldset && fieldset.length > 0) {
+              var button = fieldset.find('button[cronapp-filter]');
+              if (button && button.length > 0) {
+                var filters = button.data('filters');
+                if (filters && filters.length > 0) {
+                  bindedFilter = '';
+                  $(filters).each(function() {
+                      bindedFilter += this.bindedFilter+";";
+                  });
+                }
+              }
+            }
+            datasource.search(bindedFilter);
           },
           inputBehavior: function(scope, element, attrs, ngModelCtrl, $element, typeElement, operator, autopost) {
             var filterTemplate = '';
@@ -490,10 +512,10 @@
                 var bindedFilter = filterTemplate.split('{value}').join(value);
                 if (ngModelCtrl.$viewValue.length == 0)
                   bindedFilter = '';
+                
+                selfDirective.setFilterInButton($element, bindedFilter, operator);
                 if (autopost)
-                  datasource.search(bindedFilter);
-                else
-                  selfDirective.setFilterInButton($element, bindedFilter, operator);
+                  selfDirective.makeAutoPostSearch($element, bindedFilter, datasource);
 
               });
             }
@@ -510,10 +532,9 @@
                   if (this.value.length == 0)
                     bindedFilter = '';
 
+                  selfDirective.setFilterInButton($element, bindedFilter, operator);
                   if (autopost)
-                    datasource.search(bindedFilter);
-                  else
-                    selfDirective.setFilterInButton($element, bindedFilter, operator);
+                    selfDirective.makeAutoPostSearch($element, bindedFilter, datasource);
                 });
               }
               else {
@@ -544,10 +565,9 @@
                   if (value.toString().length == 0)
                     bindedFilter = '';
 
+                  selfDirective.setFilterInButton($element, bindedFilter, operator);
                   if (autopost)
-                    datasource.search(bindedFilter);
-                  else
-                    selfDirective.setFilterInButton($element, bindedFilter, operator);
+                    selfDirective.makeAutoPostSearch($element, bindedFilter, datasource);
                 });
               }
             }
@@ -562,8 +582,12 @@
                 datasourceName = $element.parent().attr('crn-datasource')
 
               var filters = $this.data('filters');
-              if (datasourceName && datasourceName.length > 0 && filters && filters.length > 0) {
-                var bindedFilter = filters.join(';');
+              if (datasourceName && datasourceName.length > 0 && filters) {
+                var bindedFilter = '';
+                $(filters).each(function() {
+                    bindedFilter += this.bindedFilter+";";
+                });
+                
                 var datasourceToFilter = eval(datasourceName);
                 datasourceToFilter.search(bindedFilter);
               }
